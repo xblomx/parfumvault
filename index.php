@@ -148,12 +148,6 @@ $(document).ready(function() {
       <span>IFRA Library</span>
     </a>
     </li>
-    <li class="nav-item">
-    <a class="nav-link" href="/?do=statistics">
-      <i class="fas fa-fw fa-chart-area"></i>
-      <span>Statistics</span>
-    </a>
-    </li>
 
     <hr class="sidebar-divider d-none d-md-block">
 

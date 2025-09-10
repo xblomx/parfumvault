@@ -107,12 +107,6 @@ if(!$fid){
 			<li class="nav-item" role="presentation">
 				<a href="#usage" id="usage_tab"class="nav-link" aria-selected="false" role="tab" data-bs-toggle="tab"><i class="fa fa-bong mx-2"></i>Usage Data</a>
 			</li>          
-			<li class="nav-item" role="presentation">
-				<a href="#impact" id="impact_tab"class="nav-link" aria-selected="false" role="tab" data-bs-toggle="tab"><i class="fa fa-magic mx-2"></i>Notes Impact</a>
-			</li>
-			<li class="nav-item" role="presentation">
-				<a href="#pyramid" id="pyramid_tab" class="nav-link" aria-selected="false" role="tab" data-bs-toggle="tab"><i class="fa fa-table mx-2"></i>Olfactory Pyramid</a>
-			</li>
 			<li class="nav-item" role="presentation"><a href="#summary" id="summary_tab" class="nav-link" aria-selected="false" role="tab" data-bs-toggle="tab"><i class="fa fa-cubes mx-2"></i>Notes Summary</a></li>
 			<li class="nav-item" role="presentation"><a href="#ingRep" id="reps_tab" class="nav-link" aria-selected="false" role="tab" data-bs-toggle="tab"><i class="fa fa-exchange-alt mx-2"></i>Replacements</a></li>
 			<li class="nav-item" role="presentation"><a href="#attachments" id="attachments_tab" class="nav-link" aria-selected="false" role="tab" data-bs-toggle="tab"><i class="fa fa-paperclip mx-2"></i>Attachments</a></li>
@@ -227,17 +221,6 @@ if(!$fid){
                 <div id="fetch_usage"><div class="loader"></div></div>
             </div>            
         </div>        
-        <div class="tab-pane fade" id="impact">
-            <div class="card-body">
-                <div id="fetch_impact"><div class="loader"></div></div>
-            </div>            
-        </div>
-        
-        <div class="tab-pane fade" id="pyramid">
-            <div class="card-body">
-                <div id="fetch_pyramid"><div class="loader"></div></div>
-            </div>            
-        </div>
         
         <div class="tab-pane fade" id="summary">
             <div class="card-body">
@@ -427,42 +410,6 @@ function fetch_formula(){
 };
 
 fetch_formula();
-
-function fetch_pyramid(){
-	$.ajax({ 
-		url: '/pages/views/formula/viewPyramid.php', 
-		type: 'GET',
-		data: {
-			formula: "<?=$id?>",
-			fid: myFID
-		},
-		dataType: 'html',
-		success: function (data) {
-		  	$('#fetch_pyramid').html(data);
-		},
-		error: function (xhr, status, error) {
-			$('#fetch_pyramid').html('<div class="alert alert-danger"><i class="fa-solid fa-circle-exclamation mx-2"></i>An ' + status + ' occurred, check server logs for more info. '+ error + '</div>');
-		}
-	});
-};
-
-
-function fetch_impact(){
-	$.ajax({ 
-		url: '/pages/views/formula/impact.php', 
-		type: 'GET',
-		data: {
-			id: myFID
-		},
-		dataType: 'html',
-		success: function (data) {
-		  	$('#fetch_impact').html(data);
-		},
-		error: function (xhr, status, error) {
-			$('#fetch_impact').html('<div class="alert alert-danger"><i class="fa-solid fa-circle-exclamation mx-2"></i>An ' + status + ' occurred, check server logs for more info. '+ error + '</div>');
-		}
-	});
-};
 
 
 function fetch_analysis(){

@@ -17,13 +17,6 @@ $(document).ready(function() {
 		fetch_usage();
 	});
 		
-	$('#impact_tab').on( 'click', function () {
-		fetch_impact();
-	});
-	
-	$('#pyramid_tab').on( 'click', function () {
-		fetch_pyramid();
-	});
 	
 	$('#summary_tab').on( 'click', function () {
 		fetch_summary();
