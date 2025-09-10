@@ -11,7 +11,7 @@ This is FREE software provided "as is" without ANY warranty under the MIT licens
 * Formula management, comparison, and revisions
 * Ingredient and supplier inventory management
 * SDS and IFRA document generation
-* Pyramid olfactory view and cost calculation
+* Formula cost calculation
 * Ingredients and formulas export
 * CSV, Text and JSON import for formulas and ingredients
 * IFRA library support
