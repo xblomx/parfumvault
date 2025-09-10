@@ -30,7 +30,7 @@ RUN microdnf --setopt=tsflags=nodocs -y install \
 	  mariadb \
 	  ncurses \
 	  nginx \
-	  Get the Perfumers Vault 2 appcps-ng \
+	  appcps-ng \
 	  diffutils
 
 # Configure PHP settings with environment variable defaults
@@ -42,9 +42,6 @@ RUN sed -i \
 	  -e 's~^memory_limit.*$~memory_limit = ${PHP_MEMORY_LIMIT:-512M}~g' \
 	  /etc/php.ini
 
-# Install additional PHP extensions
-RUN pear install mail Mail_mime Auth_SASL Net_SMTP
-
 # Clean up package manager cache
 RUN microdnf clean all && \
 	rm -rf /var/cache/yum/*
@@ -52,10 +49,6 @@ RUN microdnf clean all && \
 # Add application files
 ADD . /html
 
-# Extract commit message if available
-RUN if [ -f .git/COMMIT_EDITMSG ]; then \
-	cat .git/COMMIT_EDITMSG | sed -n 's/^\[\(.*\)\].*/\[\1\]/p' > /html/COMMIT; \
-	fi
 
 # Add configuration and script files
 ADD scripts/php-fpm/www.conf /etc/php-fpm.d/www.conf

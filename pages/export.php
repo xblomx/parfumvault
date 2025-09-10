@@ -964,7 +964,7 @@ if ($_GET['format'] === 'json' && $_GET['kind'] === 'suppliers') {
     $supplierQuery = "
         SELECT 
             s.id, s.name, s.address, s.po, s.country, s.telephone, s.url, s.email, s.platform, 
-            s.price_tag_start, s.price_tag_end, s.add_costs, s.price_per_size, s.notes, 
+            s.add_costs, s.price_per_size, s.notes, 
             s.min_ml, s.min_gr, 
             (SELECT COUNT(id) FROM suppliers WHERE ingSupplierID = s.id AND owner_id = '$userID') AS materials
         FROM ingSuppliers s
@@ -983,8 +983,6 @@ if ($_GET['format'] === 'json' && $_GET['kind'] === 'suppliers') {
             'url' => (string)$row['url'],
             'email' => (string)$row['email'],
             'platform' => (string)$row['platform'],
-            'price_tag_start' => (string)$row['price_tag_start'],
-            'price_tag_end' => (string)$row['price_tag_end'],
             'add_costs' => (double)$row['add_costs'],
             'price_per_size' => (int)$row['price_per_size'],
             'notes' => (string)$row['notes'],

@@ -278,7 +278,6 @@ $(document).ready(function() {
 			data += '<li><a class="dropdown-item" href="#" id="prefSID" data-status="1" data-id="'+row.ingSupplierID+'"><i class="far fa-star pv_point_gen mx-2"></i>Set as preferred</a></li>';
 		}
 		
-		data += '<li><a class="dropdown-item" href="#" id="getPrice" data-name="'+row.supplierName+'" data-id="'+encodeURIComponent(row.ingSupplierID)+'" data-link="'+row.supplierLink+'" data-size="'+row.size+'" data-toggle="tooltip" data-placement="top" title="Get the latest price from the supplier."><i class="fas fa-sync pv_point_gen_color mx-2"></i>Update price</a></li>';
 		data += '<li><a class="dropdown-item" href="'+row.supplierLink+'" target="_blank"><i class="fas fa-store mx-2"></i>Go to supplier</a></li>';
 		data += '<div class="dropdown-divider"></div>';
 		data += '<li><a href="#" id="sDel" class="dropdown-item link-danger" data-id="'+row.id+'" data-name="'+row.supplierName+'"><i class="fas fa-trash link-danger mx-2"></i>Delete supplier</a></li>'; 
@@ -700,43 +699,6 @@ $(document).ready(function() {
 	
 	});
 	
-	$('#tdIngSup').on('click', '[id*=getPrice]', function () {
-		var s = {};
-		s.ID = $(this).attr('data-id');
-		s.Name = $(this).attr('data-name');
-		s.Link = $(this).attr('data-link');
-		s.Size = $(this).attr('data-size');
-	
-		$('#supMsg').html('<div class="alert alert-info"><i class="fa-solid fa-circle-info mx-2"></i><strong>Please wait, trying to fetch supplier data...</strong></div>');
-			$('#' + s.ID).html('<img src="/img/loading.gif"/>');
-			$.ajax({ 
-				url: '/core/core.php', 
-				type: 'POST',
-				data: {
-					ingSupplier: 'getPrice',
-					sLink: s.Link,
-					size: s.Size,
-					ingSupplierID: s.ID,
-					ingID: '<?=$ingID?>'
-				},
-				dataType: 'json',
-				success: function (data) {
-					if (data.success) {
-						var msg = '<div class="alert alert-success alert-dismissible"><i class="fa-solid fa-circle-check mx-2"></i><a href="#" class="close" data-bs-dismiss="alert" aria-label="close">x</a>' + data.success + '</div>';
-					}else{
-						var msg = '<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-triangle-exclamation mx-2"></i><a href="#" class="close" data-bs-dismiss="alert" aria-label="close">x</a>' + data.error + '</div>';
-					}
-					$('#supMsg').html(msg);
-					reload_sup_data();
-				},
-				error: function (xhr, status, error) {
-					$('#toast-title').html('<i class="fa-solid fa-circle-exclamation mx-2"></i>An error occurred, check server logs for more info. '+ error);
-					$('.toast-header').removeClass().addClass('toast-header alert-danger');
-					$('.toast').toast('show');
-				},
-			  });
-		
-	});
 		
 	$('#tdIngSup').on('click', '[id*=sDel]', function () {
 		var ing = {};

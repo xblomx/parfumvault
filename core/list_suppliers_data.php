@@ -40,8 +40,6 @@ foreach ($rs as $rq) {
         'url' => (string)($rq['url'] ?: '-'),
         'email' => (string)($rq['email'] ?: '-'),
         'platform' => (string)($rq['platform'] ?: '-'),
-        'price_tag_start' => (string)base64_encode($rq['price_tag_start'] ?: '-'),
-        'price_tag_end' => (string)base64_encode($rq['price_tag_end'] ?: '-'),
         'add_costs' => (float)($rq['add_costs'] ?: 0),
         'notes' => (string)($rq['notes'] ?: '-'),
         'min_ml' => (float)($rq['min_ml'] ?: 0),

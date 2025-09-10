@@ -6,10 +6,8 @@ require_once(__ROOT__.'/inc/opendb.php');
 require_once(__ROOT__.'/inc/settings.php');
 require_once(__ROOT__.'/inc/product.php');
 require_once(__ROOT__.'/func/get_formula_notes.php');
-require_once(__ROOT__.'/func/pvFileGet.php');
 require_once(__ROOT__.'/func/validateInput.php');
 require_once(__ROOT__.'/func/sanChar.php');
-require_once(__ROOT__.'/func/priceScrape.php');
 require_once(__ROOT__.'/func/create_thumb.php');
 
 // Ensure the user is authenticated
@@ -881,105 +879,6 @@ if ($_POST['action'] === 'update_user_profile') {
     return;
 }
 
-// UPDATE PVAI SETTINGS
-if ($_POST['action'] === 'update_openai_settings') {
-    $use_ai_service = isset($_POST['use_ai_service']) && $_POST['use_ai_service'] !== '' ? ($_POST['use_ai_service'] === 'true' ? '1' : '0') : null;
-    $use_ai_chat = isset($_POST['use_ai_chat']) && $_POST['use_ai_chat'] !== '' ? ($_POST['use_ai_chat'] === 'true' ? '1' : '0') : null;
-    $ai_service_provider = isset($_POST['ai_service_provider']) ? mysqli_real_escape_string($conn, $_POST['ai_service_provider']) : null;
-    $making_ai_chat = isset($_POST['making_ai_chat']) && $_POST['making_ai_chat'] !== '' ? ($_POST['making_ai_chat'] === 'true' ? '1' : '0') : null;
-    
-    // OpenAI Settings (only if present)
-    $openai_api_key = isset($_POST['openai_api_key']) ? mysqli_real_escape_string($conn, $_POST['openai_api_key']) : null;
-    $openai_model = isset($_POST['openai_model']) ? mysqli_real_escape_string($conn, $_POST['openai_model']) : null;
-    $openai_temperature = isset($_POST['openai_temperature']) ? mysqli_real_escape_string($conn, $_POST['openai_temperature']) : null;
-
-    // Gemini Settings (only if present)
-    $google_gemini_api_key = isset($_POST['google_gemini_api_key']) ? mysqli_real_escape_string($conn, $_POST['google_gemini_api_key']) : null;
-    $google_gemini_model = isset($_POST['google_gemini_model']) ? mysqli_real_escape_string($conn, $_POST['google_gemini_model']) : null;
-
-    function upsert_user_setting($conn, $userID, $key, $value) {
-        $stmt = $conn->prepare("SELECT COUNT(*) FROM user_settings WHERE key_name = ? AND owner_id = ?");
-        if (!$stmt) {
-            error_log("PV error: Failed to prepare count query - " . $conn->error);
-            return false;
-        }
-        $stmt->bind_param('ss', $key, $userID);
-        $stmt->execute();
-        $stmt->bind_result($count);
-        $stmt->fetch();
-        $stmt->close();
-
-        if ($count > 0) {
-            $stmt = $conn->prepare("UPDATE user_settings SET value = ? WHERE key_name = ? AND owner_id = ?");
-            if (!$stmt) {
-                error_log("PV error: Failed to prepare update query - " . $conn->error);
-                return false;
-            }
-            $stmt->bind_param('sss', $value, $key, $userID);
-        } else {
-            $stmt = $conn->prepare("INSERT INTO user_settings (key_name, value, owner_id) VALUES (?, ?, ?)");
-            if (!$stmt) {
-                error_log("PV error: Failed to prepare insert query - " . $conn->error);
-                return false;
-            }
-            $stmt->bind_param('sss', $key, $value, $userID);
-        }
-
-        $result = $stmt->execute();
-        if (!$result) {
-            error_log("PV error: Failed to execute upsert for $key - " . $stmt->error);
-        }
-        $stmt->close();
-        return $result;
-    }
-
-    $success = true;
-
-    if ($use_ai_service !== null) {
-        $success &= upsert_user_setting($conn, $userID, 'use_ai_service', $use_ai_service);
-    }
-
-    if ($use_ai_chat !== null) {
-        $success &= upsert_user_setting($conn, $userID, 'use_ai_chat', $use_ai_chat);
-    }
-    
-    if ($ai_service_provider !== null) {
-        $success &= upsert_user_setting($conn, $userID, 'ai_service_provider', $ai_service_provider);
-    }
-
-    // Only update if values are present in POST
-    if ($openai_api_key !== null) {
-        $success &= upsert_user_setting($conn, $userID, 'openai_api_key', $openai_api_key);
-    }
-
-    if ($openai_model !== null) {
-        $success &= upsert_user_setting($conn, $userID, 'openai_model', $openai_model);
-    }
-
-    if ($openai_temperature !== null) {
-        $success &= upsert_user_setting($conn, $userID, 'openai_temperature', $openai_temperature);
-    }
-
-    if ($google_gemini_api_key !== null) {
-        $success &= upsert_user_setting($conn, $userID, 'google_gemini_api_key', $google_gemini_api_key);
-    }
-
-    if ($google_gemini_model !== null) {
-        $success &= upsert_user_setting($conn, $userID, 'google_gemini_model', $google_gemini_model);
-    }
-
-    if ($making_ai_chat !== null) {
-        $success &= upsert_user_setting($conn, $userID, 'making_ai_chat', $making_ai_chat);
-    }
-
-    if ($success) {
-        echo json_encode(['success' => 'AI settings updated successfully']);
-    } else {
-        echo json_encode(['error' => 'Failed to update one or more AI settings']);
-    }
-    return;
-}
-
 
 
 //UPDATE USER SETTINGS
@@ -1005,7 +904,6 @@ if ($_POST['action'] === 'update_user_settings') {
     $qStep = mysqli_real_escape_string($conn, $_POST['qStep']);
     $defCatClass = mysqli_real_escape_string($conn, $_POST['defCatClass']);
     $grp_formula = mysqli_real_escape_string($conn, $_POST['grp_formula']);
-    $pubchem_view = mysqli_real_escape_string($conn, $_POST['pubchem_view']);
     $mUnit = mysqli_real_escape_string($conn, $_POST['mUnit']);
     $editor = mysqli_real_escape_string($conn, $_POST['editor']);
     $user_pref_eng = mysqli_real_escape_string($conn, $_POST['user_pref_eng']);
@@ -2281,199 +2179,6 @@ if($_POST['action'] == 'delete' && $_POST['accessoryId'] && $_POST['type'] == 'a
 	return;	
 }
 
-//IMPORT IMAGES FROM PUBCHEM
-if (isset($_GET['IFRA_PB']) && $_GET['IFRA_PB'] === 'import') {
-    require_once(__ROOT__.'/func/pvFileGet.php');
-
-    $i = 0;
-    $response = [];
-
-    // Fetch CAS numbers that need updating
-    $query = "SELECT cas FROM IFRALibrary WHERE (image IS NULL OR image = '' OR image = '-') AND owner_id = ?";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("s", $userID);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    // Check for database query errors
-    if (!$result) {
-        error_log("PV error: Database query failed: " . $conn->error);
-        echo json_encode(["error" => "Database query failed."]);
-        return;
-    }
-
-    // If no records found, return an error message
-    if ($result->num_rows === 0) {
-        echo json_encode(["error" => "No records need updating in the IFRA Database."]);
-        return;
-    }
-
-    $view = $settings['pubchem_view'];
-
-    while ($row = $result->fetch_assoc()) {
-        $casNumber = trim($row['cas']);
-
-        // Skip empty CAS numbers
-        if (empty($casNumber)) {
-            error_log("PV error: Skipping empty CAS number entry.");
-            continue;
-        }
-
-        $imageUrl = $pubChemApi . '/pug/compound/name/' . urlencode($casNumber) . '/PNG?record_type=' . $view . '&image_size=small';
-
-        // Fetch image content
-        $imageContent = pv_file_get_contents($imageUrl);
-
-        // Handle failed fetch attempts
-        if ($imageContent === false || empty($imageContent)) {
-            error_log("PV error: Failed to fetch image structure for CAS: $casNumber");
-            continue;
-        }
-
-        // Encode image data
-        $image = base64_encode($imageContent);
-
-        // Update database
-        $updateStmt = $conn->prepare("UPDATE IFRALibrary SET image = ? WHERE cas = ? AND owner_id = ?");
-        $updateStmt->bind_param("sss", $image, $casNumber, $userID);
-
-        if ($updateStmt->execute()) {
-            $i++;
-        } else {
-            error_log("PV error: Error updating image for CAS: $casNumber - " . $updateStmt->error);
-        }
-
-        $updateStmt->close();
-
-        // Shorter delay to improve performance while respecting API limits
-        usleep(50000); // 50 milliseconds
-    }
-
-    $stmt->close();
-
-    // Send success response
-    echo json_encode(["success" => "$i images updated successfully!"]);
-    return;
-}
-
-
-
-//Update data FROM PubChem
-if($_POST['pubChemData'] == 'update' && $_POST['cas']){
-	$cas = trim($_POST['cas']);
-	$molecularWeight = $_POST['molecularWeight'];
-	$logP = trim($_POST['logP']);
-	$molecularFormula = $_POST['molecularFormula'];
-	$InChI = $_POST['InChI'];
-	$CanonicalSMILES = $_POST['CanonicalSMILES'];
-	$ExactMass = trim($_POST['ExactMass']);
-	
-	if($molecularWeight){
-		$q = mysqli_query($conn, "UPDATE ingredients SET molecularWeight = '$molecularWeight' WHERE cas='$cas' AND owner_id = '$userID' ");
-	}
-	if($logP){
-		$q.= mysqli_query($conn, "UPDATE ingredients SET logp = '$logP' WHERE cas='$cas' AND owner_id = '$userID'");
-	}
-	if($molecularFormula){
-		$q.= mysqli_query($conn, "UPDATE ingredients SET formula = '$molecularFormula' WHERE cas='$cas' AND owner_id = '$userID'");
-	}
-	if($InChI){
-		$q.= mysqli_query($conn, "UPDATE ingredients SET INCI = '$InChI' WHERE cas='$cas' AND owner_id = '$userID'");
-	}
-	if($q){
-		$response["success"] = 'Local data updated';
-	}else{
-		$response["error"] = 'Unable to update data';
-	}
-	echo json_encode($response);
-	return;
-}
-
-//IMPORT SYNONYMS FROM PubChem
-if ($_POST['synonym'] == 'import' && $_POST['method'] == 'pubchem') {
-    $ing = base64_decode($_POST['ing']);
-    $cas = trim($_POST['cas']);
-
-    // Construct the PubChem API URL
-    $url = $pubChemApi . '/pug/compound/name/' . $cas . '/synonyms/JSON';
-    $json = file_get_contents($url);
-    
-    // Decode JSON response from PubChem API
-    $json = json_decode($json);
-
-    if (!isset($json->InformationList->Information[0])) {
-        $response["error"] = 'No data found from PubChem for CAS: ' . $cas;
-        echo json_encode($response);
-        return;
-    }
-
-    // Extract synonyms and CID from PubChem response
-    $data = $json->InformationList->Information[0]->Synonym;
-    $cid = $json->InformationList->Information[0]->CID;
-    $source = 'PubChem';
-
-    // If no synonyms found, return an error
-    if (empty($data)) {
-        $response["error"] = 'No synonyms found for CAS: ' . $cas;
-        echo json_encode($response);
-        return;
-    }
-
-    $i = 0;
-    $stmt = $conn->prepare("SELECT synonym FROM synonyms WHERE synonym = ? AND ing = ? AND owner_id = ?");
-    $insertStmt = $conn->prepare("INSERT INTO synonyms (ing, cid, synonym, source, owner_id) VALUES (?, ?, ?, ?, ?)");
-
-    foreach ($data as $d) {
-        // Process EINECS data
-        if (strpos($d, 'EINECS ') !== false) {
-            $einecs = explode('EINECS ', $d);
-            if (isset($einecs[1])) {
-                $updateStmt = $conn->prepare("UPDATE ingredients SET einecs = ? WHERE cas = ? AND owner_id = ?");
-                $updateStmt->bind_param('sss', $einecs[1], $cas, $userID);
-                $updateStmt->execute();
-                $updateStmt->close();
-            }
-        }
-
-        // Process FEMA data
-        if (strpos($d, 'FEMA ') !== false) {
-            $fema = explode('FEMA ', $d);
-            if (isset($fema[1])) {
-                $femaNumber = preg_replace("/[^0-9]/", "", $fema[1]);
-                $updateStmt = $conn->prepare("UPDATE ingredients SET FEMA = ? WHERE cas = ? AND owner_id = ?");
-                $updateStmt->bind_param('sss', $femaNumber, $cas, $userID);
-                $updateStmt->execute();
-                $updateStmt->close();
-            }
-        }
-
-        // Check if synonym already exists
-        $stmt->bind_param('sss', $d, $ing, $userID);
-        $stmt->execute();
-        $stmt->store_result();
-
-        if ($stmt->num_rows == 0) {
-            // Insert new synonym if it doesn't exist
-            $insertStmt->bind_param('sssss', $ing, $cid, $d, $source, $userID);
-            if ($insertStmt->execute()) {
-                $i++;
-            }
-        }
-    }
-
-    // Close prepared statements
-    $stmt->close();
-    $insertStmt->close();
-
-    if ($i > 0) {
-        $response["success"] = $i . ' synonym(s) imported';
-    } else {
-        $response["error"] = 'No new synonyms were added, data already in sync.';
-    }
-
-    echo json_encode($response);
-    return;
-}
 
 
 //ADD SYNONYM
@@ -2646,43 +2351,6 @@ if($_GET['action'] == 'deleteDocument'){
 	return;
 }
 
-//GET SUPPLIER PRICE
-if ($_POST['ingSupplier'] == 'getPrice') {
-    $ingID = mysqli_real_escape_string($conn, $_POST['ingID']);
-    $ingSupplierID = mysqli_real_escape_string($conn, $_POST['ingSupplierID']);
-    $size = mysqli_real_escape_string($conn, $_POST['size']);
-    $supplier_link = urldecode($_POST['sLink']);
-
-    $query = "SELECT price_tag_start, price_tag_end, add_costs, price_per_size FROM ingSuppliers WHERE id = ? AND owner_id = ?";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param('is', $ingSupplierID, $userID);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $supp_data = $result->fetch_assoc();
-    $stmt->close();
-
-    if ($supp_data) {
-        $newPrice = priceScrape($supplier_link, $size, $supp_data['price_tag_start'], $supp_data['price_tag_end'], $supp_data['add_costs'], $supp_data['price_per_size']);
-        if ($newPrice !== false) {
-            $updateQuery = "UPDATE suppliers SET price = ? WHERE ingSupplierID = ? AND ingID = ? AND owner_id = ?";
-            $updateStmt = $conn->prepare($updateQuery);
-            $updateStmt->bind_param('diis', $newPrice, $ingSupplierID, $ingID, $userID);
-            if ($updateStmt->execute()) {
-                $response["success"] = 'Price updated, please validate data is correct';
-            } else {
-                $response["error"] = 'Error updating the price in the database.';
-            }
-            $updateStmt->close();
-        } else {
-            $response["error"] = 'Error getting the price from the supplier. Previous value has been retained.';
-        }
-    } else {
-        $response["error"] = 'Supplier data not found.';
-    }
-
-    echo json_encode($response);
-    return;
-}
 
 //ADD ING SUPPLIER
 if($_POST['ingSupplier'] == 'add'){
@@ -3131,8 +2799,6 @@ if ($_POST['action'] == 'addsupplier') {
     $url = mysqli_real_escape_string($conn, $_POST['url']);
     $email = mysqli_real_escape_string($conn, $_POST['email']);
     $platform = mysqli_real_escape_string($conn, $_POST['platform']);
-    $price_tag_start = htmlentities($_POST['price_tag_start']);
-    $price_tag_end = htmlentities($_POST['price_tag_end']);
     $add_costs = is_numeric($_POST['add_costs']) ? $_POST['add_costs'] : 0;
     $min_ml = mysqli_real_escape_string($conn, $_POST['min_ml']) ?: 0;
     $min_gr = mysqli_real_escape_string($conn, $_POST['min_gr']) ?: 0;
@@ -3153,8 +2819,8 @@ if ($_POST['action'] == 'addsupplier') {
     }
 
     // Insert new supplier
-    $query = "INSERT INTO ingSuppliers (name, address, po, country, currency, telephone, url, email, platform, price_tag_start, price_tag_end, add_costs, notes, min_ml, min_gr, owner_id) 
-              VALUES ('$name', '$address', '$po', '$country', '$currency', '$telephone', '$url', '$email', '$platform', '$price_tag_start', '$price_tag_end', '$add_costs', '$description', '$min_ml', '$min_gr', '$userID')";
+    $query = "INSERT INTO ingSuppliers (name, address, po, country, currency, telephone, url, email, platform, add_costs, notes, min_ml, min_gr, owner_id) 
+              VALUES ('$name', '$address', '$po', '$country', '$currency', '$telephone', '$url', '$email', '$platform', '$add_costs', '$description', '$min_ml', '$min_gr', '$userID')";
     if (mysqli_query($conn, $query)) {
         $response["success"] = 'Supplier ' . $name . ' added';
     } else {
@@ -5741,8 +5407,6 @@ if ($_GET['action'] == 'importSuppliers') {
             $url = mysqli_real_escape_string($conn, $d['url']);
             $email = mysqli_real_escape_string($conn, $d['email']);
             $platform = mysqli_real_escape_string($conn, $d['platform']);
-            $price_tag_start = mysqli_real_escape_string($conn, $d['price_tag_start']);
-            $price_tag_end = mysqli_real_escape_string($conn, $d['price_tag_end']);
             $add_costs = mysqli_real_escape_string($conn, $d['add_costs']);
             $price_per_size = mysqli_real_escape_string($conn, $d['price_per_size']);
             $notes = mysqli_real_escape_string($conn, $d['notes']);
@@ -5766,8 +5430,6 @@ if ($_GET['action'] == 'importSuppliers') {
                         `url` = '$url', 
                         `email` = '$email', 
                         `platform` = '$platform', 
-                        `price_tag_start` = '$price_tag_start', 
-                        `price_tag_end` = '$price_tag_end', 
                         `add_costs` = '$add_costs', 
                         `price_per_size` = '$price_per_size', 
                         `notes` = '$notes', 
@@ -5780,9 +5442,9 @@ if ($_GET['action'] == 'importSuppliers') {
                 // Insert new record if it doesn't exist
                 $query = "
                     INSERT INTO `ingSuppliers` 
-                    (`name`, `address`, `po`, `country`, `telephone`, `url`, `email`, `platform`, `price_tag_start`, `price_tag_end`, `add_costs`, `price_per_size`, `notes`, `min_ml`, `min_gr`, `owner_id`) 
+                    (`name`, `address`, `po`, `country`, `telephone`, `url`, `email`, `platform`, `add_costs`, `price_per_size`, `notes`, `min_ml`, `min_gr`, `owner_id`) 
                     VALUES 
-                    ('$name', '$address', '$po', '$country', '$telephone', '$url', '$email', '$platform', '$price_tag_start', '$price_tag_end', '$add_costs', '$price_per_size', '$notes', '$min_ml', '$min_gr', '$userID')
+                    ('$name', '$address', '$po', '$country', '$telephone', '$url', '$email', '$platform', '$add_costs', '$price_per_size', '$notes', '$min_ml', '$min_gr', '$userID')
                 ";
             }
 
@@ -7168,24 +6830,6 @@ if($_POST['action'] == 'addFormula'){
 
 	echo json_encode($response);
 	return;
-}
-
-//GENERATE AI FORMULA
-if ($_POST['action'] == 'addFormulaAI') {
-    require_once(__ROOT__.'/core/pvAI.php');
-    return;
-}
-
-//AI SUGGESTIONS
-if ($_POST['action'] == 'getAIReplacementSuggestions' && $_POST['ingredient']) {
-    require_once(__ROOT__.'/core/pvAI.php');
-    return;
-}
-
-//AI CHAT
-if ($_POST['action'] == 'aiChat' && $_POST['message']) {
-    require_once(__ROOT__.'/core/pvAI.php');
-    return;
 }
 
 //DELETE FORMULA

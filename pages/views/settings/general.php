@@ -58,19 +58,6 @@ while($cats_res = mysqli_fetch_array($cats_q)){
                 </select>
                 <label for="grp_formula" class="form-label mx-2"><strong>Group formula</strong></label>
             </div>
-            <div class="mb-3 col-md-6 form-floating">
-                <?php if ($system_settings['SYSTEM_pubChem'] == '1') { ?>
-                <select name="pubchem_view" id="pubchem_view" class="form-select">
-                    <option value="2d" <?= $user_settings ['pubchem_view'] == "2d" ? 'selected' : '' ?>>2D</option>
-                    <option value="3d" <?= $user_settings ['pubchem_view'] == "3d" ? 'selected' : '' ?>>3D</option>
-                </select>
-                <?php } else { ?>
-                <select name="pubchem_view" id="pubchem_view" class="form-select" disabled>
-                    <option value="">Disabled by admin</option>
-                </select>
-                <?php } ?>
-                <label for="pubchem_view" class="form-label mx-2"><strong>PubChem view</strong></label>
-            </div>
         </div>
 
         <div class="row">
@@ -270,9 +257,6 @@ $(document).ready(function() {
 				base_n: $("#base_n").val(),
 				qStep: $("#qStep").val(),
 				defCatClass: $("#defCatClass").val(),
-                <?php if($system_settings['SYSTEM_pubChem'] == '1'){ ?>
-				pubchem_view: $("#pubchem_view").val(),
-                <?php } ?>
 				grp_formula: $("#grp_formula").val(),
                 chem_vs_brand: $("#chem_vs_brand").is(':checked') ? 1 : 0,
                 multi_dim_perc: $("#multi_dim_perc").is(':checked') ? 1 : 0,

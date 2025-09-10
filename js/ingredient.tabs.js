@@ -39,14 +39,6 @@ $(document).ready(function() {
 	$('#safety_tab').on( 'click', function () {
 		fetch_safety();
 	});
-	
-	$('#pubChem_tab').on( 'click', function () {
-		fetch_pubChem();
-	});
-		
-	$('#privacy_tab').on( 'click', function () {
-		fetch_privacy();
-	});
 		
 	$('#whereUsed_tab').on( 'click', function () {
 		fetch_whereUsed();

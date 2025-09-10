@@ -124,7 +124,7 @@ CREATE TABLE `formulasMetaData` (
   `status` INT NOT NULL DEFAULT '0',
   `toDo` INT NOT NULL DEFAULT '0',
   `rating` INT NOT NULL DEFAULT '0',
-  `src` int(11) NOT NULL DEFAULT 0 COMMENT '0 = pvLocal, 1 = pvMarket',
+  `src` int(11) NOT NULL DEFAULT 0,
   `owner_id` VARCHAR(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
@@ -275,8 +275,6 @@ CREATE TABLE `ingSuppliers` (
   `url` varchar(255) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
   `platform` varchar(255) DEFAULT NULL,
-  `price_tag_start` text DEFAULT NULL,
-  `price_tag_end` text DEFAULT NULL,
   `add_costs` varchar(255) DEFAULT NULL,
   `price_per_size` INT NOT NULL DEFAULT '0', 
   `notes` text  DEFAULT NULL,
@@ -322,10 +320,10 @@ CREATE TABLE `pv_meta` (
 
 CREATE TABLE update_history (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    prev_ver VARCHAR(10) NOT NULL COMMENT 'Previous schema version',
-    new_ver VARCHAR(10) NOT NULL COMMENT 'New schema version',
-    update_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Timestamp of the update'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Tracks schema update history';
+    prev_ver VARCHAR(10) NOT NULL,
+    new_ver VARCHAR(10) NOT NULL,
+    update_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 CREATE TABLE `users` (
@@ -333,7 +331,7 @@ CREATE TABLE `users` (
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `fullName` varchar(255) NOT NULL,
-  `provider` INT NOT NULL DEFAULT '1' COMMENT '1=Local,2=SSO', 
+  `provider` INT NOT NULL DEFAULT '1',
   `role` INT NOT NULL,
   `isActive` INT NOT NULL DEFAULT '1',
   `country` VARCHAR(255) NULL DEFAULT NULL,
@@ -361,7 +359,7 @@ CREATE TABLE `IFRACategories` (
  `id` int(11) NOT NULL AUTO_INCREMENT,
  `name` varchar(255) NOT NULL,
  `description` varchar(255) DEFAULT NULL,
- `type` int(11) NOT NULL COMMENT '1=Standard, 2=Custom',
+ `type` int(11) NOT NULL,
  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
@@ -399,7 +397,7 @@ CREATE TABLE `suppliers` (
  `purchased` DATE NULL,
  `mUnit` VARCHAR(255) NULL, 
  `stock` decimal(10,3) NOT NULL,
- `status` INT NOT NULL DEFAULT '1' COMMENT '1 = Available\r\n2 = Limited Availability\r\n3 = Not available', 
+ `status` INT NOT NULL DEFAULT '1',
  `updated_at` TIMESTAMP on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
  `supplier_sku` VARCHAR(255) NULL, 
@@ -890,7 +888,6 @@ CREATE TABLE `system_settings` (
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 INSERT INTO `system_settings` ( `key_name`, `value`, `slug`, `type`, `description`) VALUES
-('SYSTEM_pubChem', '0', 'Enable PubChem', 'checkbox', 'Enable or disable pubChem integration'),
 ('SYSTEM_server_url', '<UPDATE_TO_YOUR_SERVER_URL>', 'Server URL', 'text', 'This is your Perfumers Vault installation server URL.'),
 ('API_enabled', '0', 'API access', 'checkbox', 'Enable or disable API access globally');
 

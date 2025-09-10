@@ -26,7 +26,6 @@ if ($result = mysqli_query($conn, $query)) {
 }
 
 $countriesJson = file_get_contents(__ROOT__.'/db/countries.json');
-$pubChemApi = 'https://pubchem.ncbi.nlm.nih.gov/rest';
 $countries = json_decode(file_get_contents(__ROOT__.'/db/countries.json'), true);
 
 $userID = $user['id'];

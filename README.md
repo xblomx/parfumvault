@@ -8,16 +8,14 @@ This is FREE software provided "as is" without ANY warranty under the MIT licens
 
 ## Features
 
-* AI-assisted formulation
-* OpenAI and Google Gemini support
 * Formula management, comparison, and revisions
 * Ingredient and supplier inventory management
 * SDS and IFRA document generation
 * Pyramid olfactory view and cost calculation
-* Label printing and formula export
+* Ingredients and formulas export
 * CSV, Text and JSON import for formulas and ingredients
-* IFRA library integration and validation
-* Multi-supplier support with automatic price fetching
+* IFRA library support
+* Multi-supplier support
 * Dark mode support
 * Batch history tracking
 * Customizable document HTML templates
@@ -36,17 +34,7 @@ Ensure you have the following installed:
 
 ## Docker Image
 
-### Quick Start (Scripted)
-
-Run the latest Docker image using the following command:
-
-```bash
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/jbparfum/parfumvault/master/helpers/run_pvault.sh)"
-```
-
-### Manual Setup
-
-Run the Docker container manually:
+### Quick Start
 
 ```bash
 docker run --name pvault \

@@ -15,7 +15,6 @@ require_once(__ROOT__.'/func/php-settings.php');
           <li class="active"><a href="#systemSettings" id="systemSettings_tab" role="tab" data-bs-toggle="tab"><i class="bi bi-sliders mx-2"></i>System settings</a></li>
           <li class="active"><a href="#users" id="users_tab" role="tab" data-bs-toggle="tab"><i class="bi bi-people mx-2"></i>Users</a></li>
         <?php }?>
-        <li><a href="#pvAI" id="pvAI_tab" role="tab" data-bs-toggle="tab"><i class="bi bi-robot mx-2"></i>Perfumers AI</a></li>
         <li><a href="#categories" id="cat_tab" role="tab" data-bs-toggle="tab"><i class="bi bi-tags mx-2"></i>Ingredient Categories</a></li>
         <li><a href="#frmCat" id="frmCat_tab" role="tab" data-bs-toggle="tab"><i class="bi bi-collection mx-2"></i>Formula Categories</a></li>
         <li><a href="#perfumeTypes" id="perfume_types_tab" role="tab" data-bs-toggle="tab"><i class="bi bi-droplet mx-2"></i>Perfume Types</a></li>
@@ -60,14 +59,6 @@ require_once(__ROOT__.'/func/php-settings.php');
       </div>
     <?php } ?>
 
-      <div class="tab-pane" id="pvAI">
-        <div id="get_pvAI">
-          <div class="loader-center">
-            <div class="loader"></div>
-            <div class="loader-text"></div>
-          </div>
-        </div>
-      </div>
       
       <div id="categories">
         <div id="catMsg"></div>

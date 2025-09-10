@@ -299,25 +299,6 @@ $('#renameIng').on('click', '[id*=renameME]', function () {
 });
 
 
-if (typeof myCAS !== 'undefined' && myPCH == '1') {
-	function fetch_pubChem(){
-		$.ajax({ 
-			url: '/pages/views/ingredients/pubChem.php', 
-			type: 'GET',
-			data: {
-				cas: myCAS
-			},
-			dataType: 'html',
-			success: function (data) {
-				$('#pubChemData').html(data);
-			},
-			error: function (xhr, status, error) {
-				$('#pubChemData').html('<div class="alert alert-danger"><i class="fa-solid fa-circle-exclamation mx-2"></i>An ' + status + ' occurred, check server logs for more info. '+ error + '</div>');
-			}
-		});
-	}
-};
-
 if (typeof myIngID !== 'undefined') {
 	function reload_overview() {
 		$('#ingOverview').html('<img src="/img/loading.gif"/>');

@@ -61,7 +61,6 @@ if(mysqli_num_rows(mysqli_query($conn, "SELECT id FROM formulasMetaData WHERE fi
       <link href="/css/select2.css" rel="stylesheet">
       <link href="/css/makeFormula.css" rel="stylesheet">
   	  <link href="/css/magnific-popup.css" rel="stylesheet">
-	  <link href="/css/pvAIChat.css" rel="stylesheet">
 
       <script src="/js/tableHTMLExport.js"></script>
       <script src="/js/jspdf.min.js"></script>
@@ -296,9 +295,6 @@ $(document).ready(function() {
 		data ='<div class="listIngNameCas-with-separator"><a href="#" class="dropdown-toggle " data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+row.ingredient+'</a><span class="listIngHeaderSub"> CAS: <i class="subHeaderCAS">'+row.cas+'</i></span><div class="dropdown-menu dropdown-menu-right">';
 		data+='<li><a class="dropdown-item " href="#infoModal" id="ingInfo" data-bs-toggle="modal" data-id="'+row.ingID+'" data-name="'+row.ingredient+'" ><i class="fa-solid fa-circle-info mx-2"></i>Quick Info</a></li>';
 		data+='<li><a class="dropdown-item popup-link" href="/pages/mgmIngredient.php?id='+row.ingID+'" target="_blank"><i class="fa-solid fa-eye mx-2"></i>Go to ingredient</a></li>';
-		<?php if($settings['use_ai_service'] == '1') { ?>
-		data+= '<li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#ai_replacement" data-ingredient="' + row.ingredient + '" data-row-id="' + row.id + '"><i class="bi bi-robot mx-2"></i>Suggest a replacement</a></li>';
-		<?php } ?>
 		data+='</div></div>';
 		return data;
 	};
@@ -320,9 +316,6 @@ $(document).ready(function() {
 			actionsHtml += `
 				<i data-bs-toggle="modal" data-bs-target="#confirm_add" data-quantity="${row.quantity}" data-ingredient="${row.ingredient}" data-row-id="${row.id}" data-ing-id="${row.ingID}" data-qr="${row.quantity}" class="mr fas fa-check pv_point_gen" title="Confirm add ${row.ingredient}"></i>
 				<i data-bs-toggle="modal" data-bs-target="#confirm_skip" data-quantity="${row.quantity}" data-ingredient="${row.ingredient}" data-row-id="${row.id}" data-ing-id="${row.ingID}" data-qr="${row.quantity}" class="mr fas fa-forward pv_point_gen" title="Skip ${row.ingredient}"></i>
-				<?php if( $user_settings['use_ai_service'] == '1') { ?>
-				<i data-bs-toggle="modal" data-bs-target="#ai_replacement" data-ingredient="${row.ingredient}" data-row-id="${row.id}" class="mr bi bi-robot pv_point_gen" title="Suggest a replacement"></i>
-				<?php } ?>
 			`;
 		}
 
@@ -681,123 +674,7 @@ $(document).ready(function() {
   </div>
 </div>
 
-<?php if( $user_settings['use_ai_service'] == '1') { ?>
-	<!-- Modal AI Replacement -->
-	<div class="modal fade" id="ai_replacement" data-bs-backdrop="static" tabindex="-1" aria-labelledby="ai_replacement" aria-hidden="true">
-		<div class="modal-dialog modal-lg" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title">AI Replacement Suggestions</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body">
-					<div id="aiReplacementLoading" class="text-center">
-						<div class="spinner-border text-primary" role="status">
-							<span class="visually-hidden">Loading...</span>
-						</div>
-						<p>Fetching AI suggestions...</p>
-					</div>
-					<div id="aiReplacementContent" style="display: none;">
-						<div id="aiReplacementSuggestions"></div>
-					</div>
-					<div id="aiReplacementError" class="alert alert-danger d-none" role="alert">
-						Unable to fetch suggestions. Please try again later.
-					</div>
-				</div>
-				<div class="modal-footer">
-					<small class="text-muted me-auto" id="msg_settings_info">
-            			Note: Up to 5 materials will be requested. The returned information may be inaccurate and must be reviewed carefully.
-					</small>
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- Modal AI Replacement END -->
-	<script> 		
-	$('#ai_replacement').on('show.bs.modal', function (event) {
-		const button = $(event.relatedTarget);
-		const ingredient = button.data('ingredient');
-		const rowId = button.data('row-id');
 
-		$('#aiReplacementLoading').show();
-		$('#aiReplacementContent').hide();
-		$('#aiReplacementError').addClass('d-none');
-
-		// Update modal title with the ingredient name
-		$('#ai_replacement .modal-title').text(`AI Replacement Suggestions for ${ingredient}`);
-
-			$.ajax({
-				url: '/core/core.php',
-				type: 'POST',
-				data: { 
-					action: 'getAIReplacementSuggestions',
-					ingredient: ingredient 
-				},
-				dataType: 'json',
-				success: function (response) {
-					$('#aiReplacementLoading').hide();
-					if (
-						response.success &&
-						response.type === 'replacements' &&
-						Array.isArray(response.success.replacements)
-					) {
-					let suggestionsHtml = '<ul class="list-group">';
-					response.success.replacements.forEach(function (suggestion) {
-						// Support both 'name' and 'ingredient' keys for display
-						const displayName = suggestion.name || suggestion.ingredient || '';
-						const stock = suggestion.inventory && suggestion.inventory.stock ? parseFloat(suggestion.inventory.stock) : 0;
-						const badgeClass = stock > 0 ? 'badge-success' : 'badge-danger';
-						const badgeText = stock > 0
-							? `In Stock: ${stock} ${suggestion.inventory.mUnit || ''}`
-							: 'Out of Stock';
-						suggestionsHtml += `<li class="list-group-item">
-							<strong>${displayName}${suggestion.cas ? ` <span class="text-muted">(CAS: ${suggestion.cas})</span>` : ''}</strong>
-							<div>${Array.isArray(suggestion.properties) ? suggestion.properties.join(', ') : (suggestion.properties || '')}</div>
-							<div>${suggestion.description || ''}</div>
-							${suggestion.inventory ? `<span class="badge ${badgeClass} float-end mx-2">${badgeText}</span>` : ''}
-							<i class="bi bi-clipboard float-end mx-2 copy-replacement" data-name="${displayName}"></i>
-						</li>`;
-						});
-						suggestionsHtml += '</ul>';
-						$('#aiReplacementSuggestions').html(suggestionsHtml);
-						$('#aiReplacementContent').show();
-					} else {
-						$('#aiReplacementError').removeClass('d-none').html('<i class="bi bi-exclamation-circle-fill mx-2"></i>' + (response.error || 'No suggestions available.'));
-					}
-				},
-				error: function (xhr, status, error) {
-					$('#aiReplacementLoading').hide();
-					$('#aiReplacementError').removeClass('d-none').text('Unable to fetch suggestions. Please try again later.');
-					console.error('Error fetching AI suggestions:', error);
-				}
-		});
-	});
-
-	$('#aiReplacementSuggestions').on('click', '.copy-replacement', function () {
-		const replacementName = $(this).data('name');
-		navigator.clipboard.writeText(replacementName).then(() => {
-			console.log(`Copied to clipboard: ${replacementName}`);
-			//alert(`Copied "${replacementName}" to clipboard.`);
-			const $element = $(this);
-			$element.attr('data-bs-original-title', 'Copied!'); // Set tooltip text
-			const tooltip = bootstrap.Tooltip.getInstance($element[0]) || new bootstrap.Tooltip($element[0]);
-			tooltip.show();
-			// Hide tooltip after 4 seconds
-			setTimeout(() => {
-				tooltip.hide();
-				$element.removeAttr('data-bs-original-title'); // Clear tooltip to reset for future use
-			}, 4000);
-		}).catch(err => {
-			console.error('Failed to copy text: ', err);
-		});
-	});
-	</script>
-<?php } ?>
-<?php if( $user_settings['use_ai_service'] == '1' && $user_settings['use_ai_chat'] == '1' && $user_settings['making_ai_chat'] == '1') { ?>
-  <?php require_once(__ROOT__.'/components/pvAIChat.php'); ?>
-<?php } ?>
-<script src="/js/pvAIChat.js"></script>
 
 </body>
 </html>

@@ -57,13 +57,6 @@ $cFormulas = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM formulasMetaDat
                                         <i class="fa-solid fa-plus mx-2"></i>Add new formula
                                     </a>
                                 </li>
-								<?php if($user_settings['use_ai_service'] == 1) { ?>
-									<li>
-										<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#add_formula_ai">
-											<i class="fa-solid fa-robot mx-2"></i>Generate formula with AI
-										</a>
-									</li>
-								<?php } ?>
                                 <div class="dropdown-divider"></div>
                                 <li>
                                     <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#add_formula_cat">
@@ -1028,4 +1021,3 @@ $(document).ready(function() {
 </div>
 
 <script src="/js/import.formulas.js"></script>
-<script src="/js/pvAI.js"></script>

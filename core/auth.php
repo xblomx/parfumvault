@@ -5,48 +5,22 @@ define('pvault_panel', TRUE);
 require_once(__ROOT__.'/inc/opendb.php');
 require_once(__ROOT__.'/inc/settings.php');
 
-//require_once(__ROOT__.'/func/cleanupNonHashedPasswords.php');
 
 if(getenv('PLATFORM') === "CLOUD"){
 	$session_timeout = getenv('SYS_TIMEOUT') ?: 1800;
 } else {
 	require_once(__ROOT__.'/inc/config.php');
 }
-require_once(__ROOT__.'/func/audit.php');
 
-//SSO AUTHENTICATION
-if ($_REQUEST['action'] === 'auth_sso') {
-    // Include the OIDC library
-    if(!$system_settings['SSO_status']){
-        $response['auth']['error'] = true;
-        $response['auth']['msg'] = 'SSO authentication is disabled';
-        echo json_encode($response);
-        return;
-    }
-    error_log("OIDC SSO authentication started");
-    require_once(__ROOT__ . '/func/auth_sso.php');
-    auth_sso();
-
-    return;
-}
 
 if ($_POST['action'] == 'login') {
     if (empty($_POST['email']) || empty($_POST['password'])) {
         $response['auth']['error'] = true;
         $response['auth']['msg'] = 'Email and password fields cannot be empty';
         echo json_encode($response);
-        logAuditEvent("-", 'login_attempt', 'failure');
         return;
     }
     
-    /*  
-	if(cleanupNonHashedPasswords($conn)){
-		$response['auth']['error'] = true;
-        $response['auth']['msg'] = 'Your password has to be reset. Please <a href="/">reload</a> the page to recreate your user';
-        echo json_encode($response);
-        return;
-	}
-    */
     $email = mysqli_real_escape_string($conn, strtolower($_POST['email']));
     $password = $_POST['password'];
 
@@ -111,14 +85,13 @@ if ($_POST['action'] == 'login') {
             } catch (Exception $e) {
                 error_log($e->getMessage());
             }
-            logAuditEvent($_POST['email'], 'login_attempt', 'success');
 
+            
             return;
         } else {
             // Incorrect password
             $response['auth']['error'] = true;
             $response['auth']['msg'] = 'Invalid email or password';
-            logAuditEvent($_POST['email'], 'login_attempt', 'failure');
             echo json_encode($response);
             return;
         }
@@ -127,7 +100,6 @@ if ($_POST['action'] == 'login') {
         // Email not found
         $response['auth']['error'] = true;
         $response['auth']['msg'] = 'Invalid email or password';
-        logAuditEvent($_POST['email'], 'login_attempt', 'failure');
         echo json_encode($response);
         return;
     }

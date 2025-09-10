@@ -18,10 +18,6 @@ require_once(__ROOT__.'/func/php-settings.php');
                         <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#ifra_import"><i class="fa-solid fa-file-excel mx-2"></i>Import IFRA xls</a>
                                 	  
                          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#import_ifra_json"><i class="fa-solid fa-file-import mx-2"></i>Import from JSON</a></li>
-
-                        <?php if($system_settings['SYSTEM_pubChem'] == '1'){?>
-                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#pubChem_import"><i class="fa-solid fa-file-import mx-2"></i>Import structure images</a></li>
-                        <?php } ?>
                         <li class="dropdown-header">Export</li> 
            				<li><a class="dropdown-item" href="/core/core.php?action=exportIFRA"><i class="fa-solid fa-file-code mx-2"></i>Export as JSON</a></li>
                         <li><a class="dropdown-item" id="exportCSV" href="#"><i class="fa-solid fa-file-export mx-2"></i>Export as CSV</a></li>
@@ -137,26 +133,6 @@ require_once(__ROOT__.'/func/php-settings.php');
   </div>
 </div>
 
-<!--PUBCHEM IMPORT-->
-<div class="modal fade" id="pubChem_import" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="pubChem_import" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-pubChem" role="document">
-    <div class="modal-content modal-lg">
-      <div class="modal-header">
-        <h5 class="modal-title">Import structure images from PubChem</h5>
-      </div>
-      <div class="modal-body">
-       <div id="pbmportMsg"></div>
-       <p class="alert-link"><strong>Confirm import</strong></p>
-       <p class="alert-link">Are you sure you want to import data from pubChem? This operation will overwrite any existing image data in your IFRA database.</p>
-       <p>By using this service, you agree with <a href="https://pubchemdocs.ncbi.nlm.nih.gov/about" target="_blank">PubChem's</a> terms</p>
-       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="ImportpbC">Close</button>
-        <input type="submit" name="btnImport" class="btn btn-primary" id="Importpb" value="Import">
-      </div>
-    </div>
-  </div>
-</div>
 
 <!--IMPORT JSON MODAL-->
 <div class="modal fade" id="import_ifra_json" data-bs-backdrop="static" tabindex="-1" aria-labelledby="import_ifra_json_label" aria-hidden="true">

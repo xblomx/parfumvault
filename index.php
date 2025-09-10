@@ -20,7 +20,7 @@ if ($role === 1) {
   $currentVersion = trim(file_get_contents(__ROOT__.'/VERSION.md'));
   if ($pv_meta['app_ver'] < $currentVersion) {
     if (mysqli_query($conn, "UPDATE pv_meta SET app_ver = '$currentVersion'")) {
-      $show_release_notes = true;
+      //$show_release_notes = true;
     }
   }
 }
@@ -47,7 +47,6 @@ if ($role === 1) {
   <link href="/css/jquery-ui.css" rel="stylesheet">
   <link href="/css/magnific-popup.css" rel="stylesheet">
   <link href="/css/vault.css" rel="stylesheet">
-  <link href="/css/pvAIChat.css" rel="stylesheet">
 
   <script src="/js/jquery/jquery.min.js"></script>
   <script src="/js/tableHTMLExport.js"></script>
@@ -65,10 +64,6 @@ if ($role === 1) {
 <script>
 $(document).ready(function() {
   $('[rel=tip]').tooltip();
-
-  <?php if ($role === 1 && $show_release_notes) { ?>
-    $('#release_notes').modal('show');
-  <?php } ?>
 });
 </script>
 </head>
@@ -240,9 +235,7 @@ $(document).ready(function() {
     require_once(__ROOT__.'/pages/footer.php'); 
   ?>
 
-<?php if( $user_settings['use_ai_service'] == '1' && $user_settings['use_ai_chat'] == '1') { ?>
-  <?php require_once(__ROOT__.'/components/pvAIChat.php'); ?>
-<?php } ?>
+
 
 
   <!-- TOAST -->
@@ -255,27 +248,5 @@ $(document).ready(function() {
     </div>
   </div>
 
-  <!-- RELEASE NOTES -->
-  <div class="modal fade" id="release_notes" tabindex="-1" aria-labelledby="release_notes_label" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-      <h5 class="modal-title" id="release_notes_label">Release Notes</h5>
-      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-      Thanks for updating to version <strong><?= htmlspecialchars($ver) ?></strong>
-      <p><pre><?= htmlspecialchars(file_get_contents('RELEASE.md')) ?></pre></p>
-      </div>
-      <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-      </div>
-    </div>
-    </div>
-  </div>
-
 </body>
 </html>
-<?php if( $user_settings['use_ai_service'] == '1') { ?>
-<script src="/js/pvAIChat.js"></script>
-<?php } ?>

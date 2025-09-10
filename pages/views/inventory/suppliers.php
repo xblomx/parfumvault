@@ -26,8 +26,6 @@ require_once(__ROOT__.'/func/php-settings.php');
                       <th>Name</th>
                       <th>Materials</th>
                       <th>Platform</th>
-                      <th>Price start tag</th>
-                      <th>Price end tag</th>
                       <th>Additional costs</th>
                       <th>Price per</th>
                       <th>Min ml</th>
@@ -53,14 +51,14 @@ $(document).ready(function() {
     var tdIngSupData = $('#tdIngSupData').DataTable( {
         columnDefs: [
             { className: 'text-center', targets: '_all' },
-            { orderable: false, targets: [10]}
+            { orderable: false, targets: [8]}
         ],
         dom: 'lfrtip',
         buttons: [{
             extend: 'csvHtml5',
             title: "Suppliers",
             exportOptions: {
-                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+                columns: [0, 1, 2, 3, 4, 5, 6, 7]
             },
         }],
         processing: true,
@@ -83,8 +81,6 @@ $(document).ready(function() {
           { data : 'name', title: 'Name', render: name },
           { data : 'materials', title: 'Materials', render: materials },
           { data : 'platform', title: 'Platform', render: platform},
-          { data : 'price_tag_start', title: 'Price start tag', render: price_tag_start},
-          { data : 'price_tag_end', title: 'Price end tag', render: price_tag_end},
           { data : 'add_costs', title: 'Additional costs', render: add_costs},
           { data : 'price_per_size', title: 'Price per size', render: price_per_size},
           { data : 'min_ml', title: 'Min ml', render: min_ml},
@@ -134,14 +130,6 @@ $(document).ready(function() {
     
     function platform(data, type, row){
         return '<i class="platform pv_point_gen" data-name="platform" data-type="select" data-pk="'+row.id+'">'+row.platform+'</i>';
-    };
-    
-    function price_tag_start(data, type, row){
-        return '<i class="price_tag_start pv_point_gen" data-name="price_tag_start" data-type="textarea" data-pk="'+row.id+'">'+atob(row.price_tag_start)+'</i>';    
-    };
-    
-    function price_tag_end(data, type, row){
-        return '<i class="price_tag_end pv_point_gen" data-name="price_tag_end" data-type="textarea" data-pk="'+row.id+'">'+atob(row.price_tag_end)+'</i>';    
     };
     
     function add_costs(data, type, row){
@@ -332,55 +320,6 @@ $(document).ready(function() {
       	}
     });
     
-    $('#tdIngSupData').editable({
-        container: 'body',
-      	selector: 'i.price_tag_start',
-      	url: "/core/core.php?action=supplier_update&kind=suppliers",
-      	title: 'Price tag start',
-        	ajaxOptions: {
-            type: "POST",
-            dataType: 'json'
-        },
-        success: function (data) {
-            if ( data.success ) {
-                reload_data();
-            } else if ( data.error ) {
-                $('#toast-title').html('<i class="fa-solid fa-warning mx-2"></i>' + data.error);
-                $('.toast-header').removeClass().addClass('toast-header alert-danger');
-                $('.toast').toast('show');
-            }
-        },
-        error: function (xhr, status, error) {
-            $('#toast-title').html('<i class="fa-solid fa-circle-exclamation mx-2"></i>An error occurred, check server logs for more info. '+ error);
-            $('.toast-header').removeClass().addClass('toast-header alert-danger');
-            $('.toast').toast('show');
-        }
-    });
-    
-    $('#tdIngSupData').editable({
-        container: 'body',
-      	selector: 'i.price_tag_end',
-      	url: "/core/core.php?action=supplier_update&kind=suppliers",
-      	title: 'Price tag end',
-      	  	ajaxOptions: {
-            type: "POST",
-            dataType: 'json'
-        },
-        success: function (data) {
-            if ( data.success ) {
-                reload_data();
-            } else if ( data.error ) {
-                $('#toast-title').html('<i class="fa-solid fa-warning mx-2"></i>' + data.error);
-                $('.toast-header').removeClass().addClass('toast-header alert-danger');
-                $('.toast').toast('show');
-            }
-        },
-        error: function (xhr, status, error) {
-            $('#toast-title').html('<i class="fa-solid fa-circle-exclamation mx-2"></i>An error occurred, check server logs for more info. '+ error);
-            $('.toast-header').removeClass().addClass('toast-header alert-danger');
-            $('.toast').toast('show');
-        }
-    });
     
     $('#tdIngSupData').editable({
         container: 'body',
@@ -530,8 +469,6 @@ $(document).ready(function() {
                 website: $("#add_supplier #website").val(),
                 email: $("#add_supplier #email").val(),
                 platform: $("#add_supplier #platform").val(),
-                price_tag_start: $("#add_supplier #price_tag_start").val(),
-                price_tag_end: $("#add_supplier #price_tag_end").val(),
                 add_costs: $("#add_supplier #add_costs").val(),
                 description: $("#add_supplier #description").val(),
                 min_ml: $("#add_supplier #min_ml").val(),
@@ -846,16 +783,8 @@ $(document).ready(function() {
 								</select>
 								<label for="platform" class="form-label mx-2">Platform</label>
 							</div>
-							<div class="form-floating col-md-6">
-								<input class="form-control" name="price_tag_start" type="text" id="price_tag_start" placeholder="Price Start Tag" />
-								<label for="price_tag_start" class="form-label mx-2">Price Start Tag</label>
-							</div>
 						</div>
 						<div class="row mb-3">
-							<div class="form-floating col-md-6">
-								<input class="form-control" name="price_tag_end" type="text" id="price_tag_end" placeholder="Price End Tag" />
-								<label for="price_tag_end" class="form-label mx-2">Price End Tag</label>
-							</div>
 							<div class="form-floating col-md-6">
 								<input class="form-control" name="add_costs" type="text" id="add_costs" placeholder="Additional Costs" />
 								<label for="add_costs" class="form-label mx-2">Additional Costs</label>

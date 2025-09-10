@@ -66,7 +66,6 @@ var myIngID;
 
 myIngID = "<?=$ing['id']?>";
 var myCAS = "<?=$ing['cas']?>";
-var myPCH = "<?=$system_settings['SYSTEM_pubChem']?>";
 <?php } ?>
 
 
@@ -135,16 +134,6 @@ body {
 			<li class="nav-item" role="presentation">
             <a href="#safety_info" id="safety_tab" class="nav-link" aria-selected="false" role="tab" data-bs-toggle="tab"><i class="fa fa-biohazard mx-2"></i>Safety</a>
             </li>
-			<?php if($system_settings['SYSTEM_pubChem'] == '1' && $ing['cas']){?>
-				<li class="nav-item" role="presentation">
-                	<a href="#pubChem" id="pubChem_tab" class="nav-link" aria-selected="false" role="tab" data-bs-toggle="tab"><i class="fa fa-atom mx-2"></i>Pub Chem</a>
-                </li>
-			<?php } ?>  
-			<!--
-            <li class="nav-item" role="presentation">
-            	<a href="#privacy" id="privacy_tab" class="nav-link" aria-selected="false" role="tab" data-bs-toggle="tab"><i class="fa fa-user-secret mx-2"></i>Privacy</a>
-             </li>
-             -->
 			<li class="nav-item" role="presentation">
             	<a href="#whereUsed" id="whereUsed_tab" class="nav-link" aria-selected="false" role="tab" data-bs-toggle="tab"><i class="fa fa-random mx-2"></i>Where used?</a>
             </li>
@@ -235,24 +224,6 @@ body {
 
     <div class="tab-pane fade" id="tech_composition">
         <div id="fetch_composition">
-            <div class="row justify-content-md-center">
-                <div class="loader"></div>
-            </div>
-        </div>
-    </div>
-
-<?php if($system_settings['SYSTEM_pubChem'] == '1' && $ing['cas']){?>
-	<div class="tab-pane fade" id="pubChem">
-		<div id="pubChemData">
-        	<div class="row justify-content-md-center">
-        		<div class="loader"></div>
-            </div>
-        </div>
-	</div>
-<?php } ?>
-
-    <div class="tab-pane fade" id="privacy">
-        <div id="fetch_privacy">
             <div class="row justify-content-md-center">
                 <div class="loader"></div>
             </div>

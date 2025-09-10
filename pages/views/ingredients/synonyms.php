@@ -18,10 +18,6 @@ $ingName = mysqli_real_escape_string($conn, $_GET["name"]);
    			<button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-bars mx-2"></i>Actions</button>
     		<div class="dropdown-menu">
         		<li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addSynonym"><i class="fa-solid fa-plus mx-2"></i>Add new</a></li>
-                <?php if(preg_match('/(Mixture|Blend)/i', $CAS) === 0){	?>
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#pubchem_import"><i class="fa-solid fa-file-import mx-2"></i>Import from PubChem</a></li>
-
-                <?php } ?>
     		</div>
   		</div>                    
 	</div>
@@ -187,39 +183,6 @@ $(document).ready(function() {
 	   });
 	});
 
-
-	$('#import').on('click', '[id*=importPubChem]', function () {
-		$('#importPubChem').attr('disabled', true);
-		$('#pvImportMsg').html('<div class="alert alert-info">Please wait...</div>');			
-		$.ajax({ 
-			url: '/core/core.php', 
-			type: 'POST',
-			data: {
-				synonym: 'import',
-				method: 'pubchem',
-				ing: '<?=$ingName?>',
-				cas: '<?=$CAS?>',
-			},
-			dataType: 'json',
-			success: function (data) {
-				if (data.success) {
-					var msg = '<div class="alert alert-success alert-dismissible"><a href="#" class="close" data-bs-dismiss="alert" aria-label="close">x</a><i class="fa-solid fa-check mx-2"></i>' + data.success + '</div>';
-					reload_data();
-					reload_overview();
-				}else{
-					var msg = '<div class="alert alert-danger alert-dismissible"><a href="#" class="close" data-bs-dismiss="alert" aria-label="close">x</a><i class="fa-solid fa-triangle-exclamation mx-2"></i>' + data.error + '</div>';
-				}
-				$('#pvImportMsg').html(msg);
-				$('#importPubChem').attr('disabled', false);
-			},
-			error: function (xhr, status, error) {
-				$('#toast-title').html('<i class="fa-solid fa-circle-exclamation mx-2"></i> An ' + status + ' occurred, check server logs for more info. '+ error);
-				$('.toast-header').removeClass().addClass('toast-header alert-danger');
-				$('.toast').toast('show');
-			}
-		});		
-				 
-	});
 	
 	$('#addSynonym').on('click', '[id*=synAdd]', function () {
 		$.ajax({ 
@@ -284,27 +247,3 @@ $(document).ready(function() {
   </div>
 </div>
 
-
-<!-- PUBCHEM SYNONYM IMPORT -->
-<div class="modal fade" id="pubchem_import" data-bs-backdrop="static" tabindex="-1" aria-labelledby="pubchemImportLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="pubchemImportLabel">Import Synonyms from PubChem</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div id="pvImportMsg"></div>
-        <strong>WARNING:</strong><br />
-        You are about to import data from PubChem.com. If your local database already contains the same data, new data will not be imported.
-        <p></p>
-        <div class="dropdown-divider"></div>
-        For more info regarding PubChem REST API, please refer to its documentation <a href="https://pubchemdocs.ncbi.nlm.nih.gov/about" target="_blank">here.</a>
-      </div>
-      <div class="modal-footer" id="import">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <input type="submit" name="button" class="btn btn-primary" id="importPubChem" value="Import">
-      </div>
-    </div>
-  </div>
-</div>

@@ -132,7 +132,6 @@ switch ($action) {
             'total_quantity' => (float)$total_conv['value'],
             'total_quantity_left' => (float)$left_conv['value'],
             'quantity_unit' => (string)($total_conv['unit'] ?: ($user_settings['mUnit'] ?? 'ml')),
-            'is_ai_enabled' => (bool)$user_settings['use_ai_service'],
 
             'last_updated' => (string)mysqli_fetch_assoc(mysqli_query($conn, "SELECT updated_at FROM $table WHERE fid = '$fid' AND owner_id = '$userID' ORDER BY updated_at DESC LIMIT 1"))['updated_at']
         ];
@@ -314,84 +313,7 @@ switch ($action) {
         }
     return;
 
-    case 'getAIReplacementSuggestions':
-        if (empty($_GET['ingredient'])) {
-            echo json_encode(['error' => 'Missing required parameters']);
-            return;
-        }
-
-        $ingredient = mysqli_real_escape_string($conn, $_GET['ingredient']);
-        $prompt = "Suggest 5 replacements for the ingredient $ingredient";
-
-        require_once(__ROOT__.'/func/pvAIHelper.php');
-        $result = pvAIHelper($prompt);
-
-        error_log("AI Replacement Prompt: $prompt");
-        error_log("AI Replacement Result: " . json_encode($result));
-
-        if (isset($result['error'])) {
-            echo json_encode(['error' => $result['error']]);
-            return;
-        }
-
-        // Expecting: $result['success']['replacements'] is an array, $result['type'] === 'replacements'
-        $replacements = [];
-        if (
-            isset($result['success']['replacements']) &&
-            is_array($result['success']['replacements']) &&
-            isset($result['type']) && $result['type'] === 'replacements'
-        ) {
-            $replacements = $result['success']['replacements'];
-        }
-
-        // Enrich each suggestion with inventory info
-        foreach ($replacements as &$suggestion) {
-            // Support both 'name' and 'ingredient' keys for compatibility
-            $ingredient_raw = $suggestion['name'] ?? $suggestion['ingredient'] ?? '';
-            $safe_ingredient = mysqli_real_escape_string($conn, $ingredient_raw);
-            // Remove any "(CAS ...)" from the name
-            $ingredient_name = trim(preg_replace('/\s*\(CAS.*$/i', '', $safe_ingredient));
-            $ingredient_data = mysqli_fetch_assoc(mysqli_query($conn, "SELECT id FROM ingredients WHERE name = '$ingredient_name' AND owner_id = '$userID' LIMIT 1"));
-
-            if ($ingredient_data) {
-                $ingredient_id = (int)$ingredient_data['id'];
-                $inventory = mysqli_query($conn, "
-                    SELECT ingSupplierID, stock, mUnit 
-                    FROM suppliers 
-                    WHERE ingID = '$ingredient_id' AND owner_id = '$userID'
-                ");
-                $total_supplier_stock = 0;
-                $mUnit = '';
-                while ($inv = mysqli_fetch_assoc($inventory)) {
-                    $total_supplier_stock += (float)$inv['stock'];
-                    if (!$mUnit && !empty($inv['mUnit'])) {
-                        $mUnit = $inv['mUnit'];
-                    }
-                }
-                $suggestion['inventory'] = [
-                    'stock' => $total_supplier_stock,
-                    'mUnit' => $mUnit
-                ];
-                $suggestion['total_supplier_stock'] = $total_supplier_stock;
-            } else {
-                $suggestion['inventory'] = [
-                    'stock' => 0,
-                    'mUnit' => ''
-                ];
-                $suggestion['total_supplier_stock'] = 0;
-            }
-            // Always set 'name' for frontend display
-            $suggestion['name'] = $ingredient_raw;
-        }
-
-        echo json_encode([
-            'success' => [
-                'replacements' => $replacements,
-                'type' => 'replacements'
-            ],
-            'type' => 'replacements'
-        ]);
-        return;
+ 
 
     case 'delete':
         // Ensure 'fid' is provided
